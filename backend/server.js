@@ -19,8 +19,8 @@ app.get("/", (req, res) => {
   res.json({ message: "Plant Health API is running" });
 });
 
-// Routes will be added here as we build them, e.g.:
-// app.use('/api/auth', require('./routes/authRoutes'));
+
+app.use('/api/auth', require('./routes/authRoutes'));
 // app.use('/api/diseases', require('./routes/diseaseRoutes'));
 
 const PORT = process.env.PORT || 5000;
