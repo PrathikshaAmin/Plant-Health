@@ -1,3 +1,5 @@
+// this here now is just to check if its running-- will hv to remove this later
+
 require("dotenv").config();
 const mongoose = require("mongoose");
 const connectDB = require("./config/db");
