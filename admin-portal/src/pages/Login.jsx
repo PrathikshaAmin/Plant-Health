@@ -1,10 +1,12 @@
 import { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,8 +21,11 @@ function Login() {
         },
       );
 
-      console.log("Login successful:", response.data);
-      // We'll store the token and redirect to a dashboard in the next step
+      // Store the token so the app remembers this user is logged in
+      localStorage.setItem("token", response.data.token);
+
+      // Redirect to the dashboard
+      navigate("/dashboard");
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }
