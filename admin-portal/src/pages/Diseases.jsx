@@ -12,6 +12,9 @@ function Diseases() {
   const [affectedArea, setAffectedArea] = useState("Leaf");
   const [description, setDescription] = useState("");
 
+  // Tracks which disease is being edited (null = adding a new one instead)
+  const [editingId, setEditingId] = useState(null);
+
   const fetchDiseases = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/diseases");
@@ -27,23 +30,62 @@ function Diseases() {
     fetchDiseases();
   }, []);
 
-  const handleAddDisease = async (e) => {
+  const resetForm = () => {
+    setDiseaseName("");
+    setCategory("");
+    setAffectedArea("Leaf");
+    setDescription("");
+    setEditingId(null);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    const payload = {
+      diseaseName,
+      category,
+      affectedArea: [affectedArea],
+      description,
+    };
+
     try {
-      await axios.post("http://localhost:5000/api/diseases", {
-        diseaseName,
-        category,
-        affectedArea: [affectedArea],
-        description,
-      });
-
-      setDiseaseName("");
-      setCategory("");
-      setDescription("");
-
+      if (editingId) {
+        // Update existing disease
+        await axios.put(
+          `http://localhost:5000/api/diseases/${editingId}`,
+          payload,
+        );
+      } else {
+        // Create new disease
+        await axios.post("http://localhost:5000/api/diseases", payload);
+      }
+      resetForm();
       fetchDiseases();
     } catch (err) {
-      setError("Failed to add disease");
+      setError(
+        editingId ? "Failed to update disease" : "Failed to add disease",
+      );
+    }
+  };
+
+  const handleEditClick = (disease) => {
+    setEditingId(disease._id);
+    setDiseaseName(disease.diseaseName);
+    setCategory(disease.category);
+    setAffectedArea(disease.affectedArea[0] || "Leaf");
+    setDescription(disease.description);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to delete this disease?",
+    );
+    if (!confirmed) return;
+
+    try {
+      await axios.delete(`http://localhost:5000/api/diseases/${id}`);
+      fetchDiseases();
+    } catch (err) {
+      setError("Failed to delete disease");
     }
   };
 
@@ -56,8 +98,8 @@ function Diseases() {
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <h3>Add New Disease</h3>
-      <form onSubmit={handleAddDisease}>
+      <h3>{editingId ? "Edit Disease" : "Add New Disease"}</h3>
+      <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder="Disease Name"
@@ -89,7 +131,14 @@ function Diseases() {
           onChange={(e) => setDescription(e.target.value)}
           required
         />
-        <button type="submit">Add Disease</button>
+        <button type="submit">
+          {editingId ? "Update Disease" : "Add Disease"}
+        </button>
+        {editingId && (
+          <button type="button" onClick={resetForm}>
+            Cancel
+          </button>
+        )}
       </form>
 
       <h3>Existing Diseases</h3>
@@ -100,6 +149,7 @@ function Diseases() {
             <th>Category</th>
             <th>Affected Area</th>
             <th>Description</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -109,6 +159,12 @@ function Diseases() {
               <td>{disease.category}</td>
               <td>{disease.affectedArea.join(", ")}</td>
               <td>{disease.description}</td>
+              <td>
+                <button onClick={() => handleEditClick(disease)}>Edit</button>
+                <button onClick={() => handleDelete(disease._id)}>
+                  Delete
+                </button>
+              </td>
             </tr>
           ))}
         </tbody>
