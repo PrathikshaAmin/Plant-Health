@@ -22,6 +22,9 @@ function Navbar() {
       <Link to="/diseases" style={{ marginRight: "15px" }}>
         Diseases
       </Link>
+      <Link to="/symptoms" style={{ marginRight: "15px" }}>
+        Symptoms
+      </Link>
       <button onClick={handleLogout}>Logout</button>
     </nav>
   );
