@@ -28,6 +28,7 @@ app.use('/api/treatments', require('./routes/treatmentRoutes'));
 app.use("/api/diagnosis-rules", require("./routes/diagnosisRuleRoutes"));
 app.use("/api/diagnosis", require("./routes/diagnosisRoutes"));
 app.use("/api/images", require("./routes/imageRoutes"));
+app.use("/api/history", require("./routes/historyRoutes"));
 
 const PORT = process.env.PORT || 5000;
 
