@@ -13,6 +13,7 @@ const app = express();
 // Middleware
 app.use(cors()); // Allows the mobile app / admin portal (different origins) to call this API
 app.use(express.json()); // Lets us read JSON data sent in requests (req.body)
+app.use("/uploads", express.static("uploads"));
 
 // Simple test route to confirm the server is alive
 app.get("/", (req, res) => {
@@ -26,6 +27,7 @@ app.use("/api/symptoms", require("./routes/symptomRoutes"));
 app.use('/api/treatments', require('./routes/treatmentRoutes'));
 app.use("/api/diagnosis-rules", require("./routes/diagnosisRuleRoutes"));
 app.use("/api/diagnosis", require("./routes/diagnosisRoutes"));
+app.use("/api/images", require("./routes/imageRoutes"));
 
 const PORT = process.env.PORT || 5000;
 
