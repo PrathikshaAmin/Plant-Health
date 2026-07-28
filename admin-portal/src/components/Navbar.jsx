@@ -8,30 +8,36 @@ function Navbar() {
     navigate("/login");
   };
 
+  const linkStyle = "text-gray-700 hover:text-green-700 font-medium";
+
   return (
-    <nav
-      style={{
-        padding: "10px",
-        borderBottom: "1px solid #ccc",
-        marginBottom: "20px",
-      }}
-    >
-      <Link to="/dashboard" style={{ marginRight: "15px" }}>
-        Dashboard
-      </Link>
-      <Link to="/diseases" style={{ marginRight: "15px" }}>
-        Diseases
-      </Link>
-      <Link to="/symptoms" style={{ marginRight: "15px" }}>
-        Symptoms
-      </Link>
-      <Link to="/treatments" style={{ marginRight: "15px" }}>
-        Treatments
-      </Link>
-      <Link to="/rules" style={{ marginRight: "15px" }}>
-        Rules
-      </Link>
-      <button onClick={handleLogout}>Logout</button>
+    <nav className="bg-white shadow-sm px-6 py-4 mb-6 flex items-center justify-between">
+      <div className="flex items-center gap-6">
+        <span className="text-lg font-bold text-green-800">
+          🌿 Plant Health Admin
+        </span>
+        <Link to="/dashboard" className={linkStyle}>
+          Dashboard
+        </Link>
+        <Link to="/diseases" className={linkStyle}>
+          Diseases
+        </Link>
+        <Link to="/symptoms" className={linkStyle}>
+          Symptoms
+        </Link>
+        <Link to="/treatments" className={linkStyle}>
+          Treatments
+        </Link>
+        <Link to="/rules" className={linkStyle}>
+          Rules
+        </Link>
+      </div>
+      <button
+        onClick={handleLogout}
+        className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition text-sm"
+      >
+        Logout
+      </button>
     </nav>
   );
 }

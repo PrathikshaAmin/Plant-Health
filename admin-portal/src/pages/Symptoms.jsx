@@ -69,7 +69,6 @@ function Symptoms() {
       "Are you sure you want to delete this symptom?",
     );
     if (!confirmed) return;
-
     try {
       await axios.delete(`http://localhost:5000/api/symptoms/${id}`);
       fetchSymptoms();
@@ -78,75 +77,119 @@ function Symptoms() {
     }
   };
 
-  if (loading) return <p>Loading symptoms...</p>;
+  const inputStyle =
+    "border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500";
+
+  if (loading) return <p className="p-6">Loading symptoms...</p>;
 
   return (
     <div>
       <Navbar />
-      <h2>Symptom Management</h2>
+      <div className="px-6 max-w-5xl mx-auto">
+        <h2 className="text-2xl font-bold text-green-800 mb-4">
+          Symptom Management
+        </h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <h3>{editingId ? "Edit Symptom" : "Add New Symptom"}</h3>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Symptom Name"
-          value={symptomName}
-          onChange={(e) => setSymptomName(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <select
-          value={affectedArea}
-          onChange={(e) => setAffectedArea(e.target.value)}
-        >
-          <option value="Leaf">Leaf</option>
-          <option value="Stem">Stem</option>
-          <option value="Root">Root</option>
-          <option value="Fruit">Fruit</option>
-        </select>
-        <button type="submit">
-          {editingId ? "Update Symptom" : "Add Symptom"}
-        </button>
-        {editingId && (
-          <button type="button" onClick={resetForm}>
-            Cancel
-          </button>
+        {error && (
+          <p className="bg-red-100 text-red-700 text-sm p-2 rounded mb-4">
+            {error}
+          </p>
         )}
-      </form>
 
-      <h3>Existing Symptoms</h3>
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Affected Area</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {symptoms.map((symptom) => (
-            <tr key={symptom._id}>
-              <td>{symptom.symptomName}</td>
-              <td>{symptom.description}</td>
-              <td>{symptom.affectedArea}</td>
-              <td>
-                <button onClick={() => handleEditClick(symptom)}>Edit</button>
-                <button onClick={() => handleDelete(symptom._id)}>
-                  Delete
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+          <h3 className="text-lg font-semibold mb-4">
+            {editingId ? "Edit Symptom" : "Add New Symptom"}
+          </h3>
+          <form
+            onSubmit={handleSubmit}
+            className="grid grid-cols-1 md:grid-cols-2 gap-4"
+          >
+            <input
+              type="text"
+              placeholder="Symptom Name"
+              value={symptomName}
+              onChange={(e) => setSymptomName(e.target.value)}
+              required
+              className={inputStyle}
+            />
+            <select
+              value={affectedArea}
+              onChange={(e) => setAffectedArea(e.target.value)}
+              className={inputStyle}
+            >
+              <option value="Leaf">Leaf</option>
+              <option value="Stem">Stem</option>
+              <option value="Root">Root</option>
+              <option value="Fruit">Fruit</option>
+            </select>
+            <input
+              type="text"
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className={`${inputStyle} md:col-span-2`}
+            />
+            <div className="md:col-span-2 flex gap-2">
+              <button
+                type="submit"
+                className="bg-green-700 text-white px-5 py-2 rounded hover:bg-green-800 transition"
+              >
+                {editingId ? "Update Symptom" : "Add Symptom"}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="bg-gray-200 text-gray-700 px-5 py-2 rounded hover:bg-gray-300 transition"
+                >
+                  Cancel
                 </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-green-700 text-white">
+              <tr>
+                <th className="px-4 py-3">Name</th>
+                <th className="px-4 py-3">Description</th>
+                <th className="px-4 py-3">Affected Area</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {symptoms.map((symptom, i) => (
+                <tr
+                  key={symptom._id}
+                  className={i % 2 === 0 ? "bg-white" : "bg-green-50"}
+                >
+                  <td className="px-4 py-3 font-medium">
+                    {symptom.symptomName}
+                  </td>
+                  <td className="px-4 py-3">{symptom.description}</td>
+                  <td className="px-4 py-3">{symptom.affectedArea}</td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(symptom)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(symptom._id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

@@ -58,7 +58,6 @@ function Rules() {
     setEditingId(null);
   };
 
-  // Toggles a symptom checkbox on/off in the selectedSymptoms array
   const toggleSymptom = (symptomId) => {
     setSelectedSymptoms((prev) =>
       prev.includes(symptomId)
@@ -69,12 +68,10 @@ function Rules() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (selectedSymptoms.length === 0) {
       setError("Please select at least one symptom");
       return;
     }
-
     const payload = {
       affectedArea,
       symptoms: selectedSymptoms,
@@ -113,7 +110,6 @@ function Rules() {
       "Are you sure you want to delete this rule?",
     );
     if (!confirmed) return;
-
     try {
       await axios.delete(`http://localhost:5000/api/diagnosis-rules/${id}`);
       fetchRules();
@@ -122,121 +118,183 @@ function Rules() {
     }
   };
 
-  if (loading) return <p>Loading rules...</p>;
+  const inputStyle =
+    "border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500";
+
+  if (loading) return <p className="p-6">Loading rules...</p>;
 
   return (
     <div>
       <Navbar />
-      <h2>Diagnosis Rule Management</h2>
+      <div className="px-6 max-w-5xl mx-auto">
+        <h2 className="text-2xl font-bold text-green-800 mb-4">
+          Diagnosis Rule Management
+        </h2>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
-
-      <h3>{editingId ? "Edit Rule" : "Add New Rule"}</h3>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label>Affected Area: </label>
-          <select
-            value={affectedArea}
-            onChange={(e) => setAffectedArea(e.target.value)}
-          >
-            <option value="Leaf">Leaf</option>
-            <option value="Stem">Stem</option>
-            <option value="Root">Root</option>
-            <option value="Fruit">Fruit</option>
-            <option value="Whole Plant">Whole Plant</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Symptoms (select all that apply):</label>
-          <br />
-          {symptoms.map((symptom) => (
-            <label key={symptom._id} style={{ marginRight: "10px" }}>
-              <input
-                type="checkbox"
-                checked={selectedSymptoms.includes(symptom._id)}
-                onChange={() => toggleSymptom(symptom._id)}
-              />
-              {symptom.symptomName}
-            </label>
-          ))}
-        </div>
-
-        <div>
-          <label>Severity: </label>
-          <select
-            value={severity}
-            onChange={(e) => setSeverity(e.target.value)}
-          >
-            <option value="Low">Low</option>
-            <option value="Medium">Medium</option>
-            <option value="High">High</option>
-          </select>
-        </div>
-
-        <div>
-          <label>Disease: </label>
-          <select
-            value={disease}
-            onChange={(e) => setDisease(e.target.value)}
-            required
-          >
-            {diseases.map((d) => (
-              <option key={d._id} value={d._id}>
-                {d.diseaseName}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div>
-          <label>Match Score (0-100): </label>
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={matchScore}
-            onChange={(e) => setMatchScore(e.target.value)}
-            required
-          />
-        </div>
-
-        <button type="submit">{editingId ? "Update Rule" : "Add Rule"}</button>
-        {editingId && (
-          <button type="button" onClick={resetForm}>
-            Cancel
-          </button>
+        {error && (
+          <p className="bg-red-100 text-red-700 text-sm p-2 rounded mb-4">
+            {error}
+          </p>
         )}
-      </form>
 
-      <h3>Existing Rules</h3>
-      <table border="1" cellPadding="8">
-        <thead>
-          <tr>
-            <th>Affected Area</th>
-            <th>Symptoms</th>
-            <th>Severity</th>
-            <th>Disease</th>
-            <th>Match Score</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rules.map((rule) => (
-            <tr key={rule._id}>
-              <td>{rule.affectedArea}</td>
-              <td>{rule.symptoms.map((s) => s.symptomName).join(", ")}</td>
-              <td>{rule.severity}</td>
-              <td>{rule.disease?.diseaseName || "N/A"}</td>
-              <td>{rule.matchScore}%</td>
-              <td>
-                <button onClick={() => handleEditClick(rule)}>Edit</button>
-                <button onClick={() => handleDelete(rule._id)}>Delete</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+          <h3 className="text-lg font-semibold mb-4">
+            {editingId ? "Edit Rule" : "Add New Rule"}
+          </h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Affected Area
+                </label>
+                <select
+                  value={affectedArea}
+                  onChange={(e) => setAffectedArea(e.target.value)}
+                  className={`${inputStyle} w-full`}
+                >
+                  <option value="Leaf">Leaf</option>
+                  <option value="Stem">Stem</option>
+                  <option value="Root">Root</option>
+                  <option value="Fruit">Fruit</option>
+                  <option value="Whole Plant">Whole Plant</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Severity
+                </label>
+                <select
+                  value={severity}
+                  onChange={(e) => setSeverity(e.target.value)}
+                  className={`${inputStyle} w-full`}
+                >
+                  <option value="Low">Low</option>
+                  <option value="Medium">Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Match Score (0-100)
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={matchScore}
+                  onChange={(e) => setMatchScore(e.target.value)}
+                  required
+                  className={`${inputStyle} w-full`}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Disease
+              </label>
+              <select
+                value={disease}
+                onChange={(e) => setDisease(e.target.value)}
+                required
+                className={`${inputStyle} w-full md:w-1/2`}
+              >
+                {diseases.map((d) => (
+                  <option key={d._id} value={d._id}>
+                    {d.diseaseName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Symptoms (select all that apply)
+              </label>
+              <div className="flex flex-wrap gap-3 bg-gray-50 p-3 rounded border border-gray-200">
+                {symptoms.map((symptom) => (
+                  <label
+                    key={symptom._id}
+                    className="flex items-center gap-1.5 text-sm bg-white px-3 py-1.5 rounded border border-gray-300 cursor-pointer hover:bg-green-50"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={selectedSymptoms.includes(symptom._id)}
+                      onChange={() => toggleSymptom(symptom._id)}
+                    />
+                    {symptom.symptomName}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                className="bg-green-700 text-white px-5 py-2 rounded hover:bg-green-800 transition"
+              >
+                {editingId ? "Update Rule" : "Add Rule"}
+              </button>
+              {editingId && (
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="bg-gray-200 text-gray-700 px-5 py-2 rounded hover:bg-gray-300 transition"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
+          </form>
+        </div>
+
+        <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+          <table className="w-full text-left text-sm">
+            <thead className="bg-green-700 text-white">
+              <tr>
+                <th className="px-4 py-3">Affected Area</th>
+                <th className="px-4 py-3">Symptoms</th>
+                <th className="px-4 py-3">Severity</th>
+                <th className="px-4 py-3">Disease</th>
+                <th className="px-4 py-3">Match Score</th>
+                <th className="px-4 py-3">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rules.map((rule, i) => (
+                <tr
+                  key={rule._id}
+                  className={i % 2 === 0 ? "bg-white" : "bg-green-50"}
+                >
+                  <td className="px-4 py-3">{rule.affectedArea}</td>
+                  <td className="px-4 py-3">
+                    {rule.symptoms.map((s) => s.symptomName).join(", ")}
+                  </td>
+                  <td className="px-4 py-3">{rule.severity}</td>
+                  <td className="px-4 py-3">
+                    {rule.disease?.diseaseName || "N/A"}
+                  </td>
+                  <td className="px-4 py-3 font-medium">{rule.matchScore}%</td>
+                  <td className="px-4 py-3 flex gap-2">
+                    <button
+                      onClick={() => handleEditClick(rule)}
+                      className="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(rule._id)}
+                      className="bg-red-600 text-white px-3 py-1 rounded text-xs hover:bg-red-700"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }
