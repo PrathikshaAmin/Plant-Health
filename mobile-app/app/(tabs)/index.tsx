@@ -1,13 +1,27 @@
-import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+import { View, Text, StyleSheet, TouchableOpacity, Alert } from "react-native";
 import { useRouter } from "expo-router";
+import * as SecureStore from "expo-secure-store";
 
 export default function HomeScreen() {
   const router = useRouter();
 
+  const handleLogout = async () => {
+    await SecureStore.deleteItemAsync("token");
+    await SecureStore.deleteItemAsync("userId");
+    router.replace("/login");
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>🌿 Plant Health</Text>
-      <Text style={styles.subtitle}>Diagnose and care for your plants</Text>
+      <View style={styles.header}>
+        <View>
+          <Text style={styles.title}>🌿 Plant Health</Text>
+          <Text style={styles.subtitle}>Diagnose and care for your plants</Text>
+        </View>
+        <TouchableOpacity onPress={handleLogout}>
+          <Text style={styles.logoutText}>Logout</Text>
+        </TouchableOpacity>
+      </View>
 
       <TouchableOpacity
         style={styles.card}
@@ -37,8 +51,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0fdf4",
     paddingTop: 60,
   },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: 24,
+  },
   title: { fontSize: 26, fontWeight: "bold", color: "#166534" },
-  subtitle: { fontSize: 14, color: "#4b5563", marginBottom: 24 },
+  subtitle: { fontSize: 14, color: "#4b5563", marginTop: 2 },
+  logoutText: {
+    color: "#dc2626",
+    fontWeight: "600",
+    fontSize: 14,
+    marginTop: 4,
+  },
   card: {
     backgroundColor: "white",
     padding: 20,

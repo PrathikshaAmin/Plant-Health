@@ -55,6 +55,18 @@ export default function Login() {
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
         <Text style={styles.buttonText}>Login</Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/register")}>
+        <Text
+          style={{
+            color: "#15803d",
+            textAlign: "center",
+            marginTop: 16,
+            fontSize: 14,
+          }}
+        >
+          Don't have an account? Register
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
