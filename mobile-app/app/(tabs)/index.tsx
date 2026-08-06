@@ -40,6 +40,22 @@ export default function HomeScreen() {
           Answer a few questions to get a diagnosis
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push("/history")}
+      >
+        <Text style={styles.cardTitle}>📋 My Diagnosis History</Text>
+        <Text style={styles.cardText}>View your past plant diagnoses</Text>
+      </TouchableOpacity>
+      <TouchableOpacity
+        style={styles.card}
+        onPress={() => router.push("/upload-image")}
+      >
+        <Text style={styles.cardTitle}>📷 Upload Plant Photo</Text>
+        <Text style={styles.cardText}>
+          Take or select a photo of your plant
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }

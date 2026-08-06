@@ -6,23 +6,33 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import { useRouter } from "expo-router";
 import { API_URL } from "../config";
 
+const CATEGORIES = ["Fungal", "Bacterial", "Viral", "Pest"];
+const AREAS = ["Leaf", "Stem", "Root", "Fruit", "Whole Plant"];
+
 export default function Diseases() {
   const [diseases, setDiseases] = useState([]);
   const [search, setSearch] = useState("");
+  const [category, setCategory] = useState("");
+  const [area, setArea] = useState("");
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const fetchDiseases = async (searchTerm = "") => {
+  const fetchDiseases = async () => {
     try {
-      const url = searchTerm
-        ? `${API_URL}/diseases?search=${searchTerm}`
-        : `${API_URL}/diseases`;
-      const response = await axios.get(url);
+      const params = new URLSearchParams();
+      if (search) params.append("search", search);
+      if (category) params.append("category", category);
+      if (area) params.append("affectedArea", area);
+
+      const response = await axios.get(
+        `${API_URL}/diseases?${params.toString()}`,
+      );
       setDiseases(response.data);
     } catch (err) {
       console.log("Error fetching diseases:", err);
@@ -33,11 +43,11 @@ export default function Diseases() {
 
   useEffect(() => {
     fetchDiseases();
-  }, []);
+  }, [search, category, area]);
 
-  const handleSearch = (text: string) => {
-    setSearch(text);
-    fetchDiseases(text);
+  const toggleFilter = (type: "category" | "area", value: string) => {
+    if (type === "category") setCategory(category === value ? "" : value);
+    else setArea(area === value ? "" : value);
   };
 
   return (
@@ -48,15 +58,67 @@ export default function Diseases() {
         style={styles.searchInput}
         placeholder="Search by name or symptom..."
         value={search}
-        onChangeText={handleSearch}
+        onChangeText={setSearch}
       />
 
+      <Text style={styles.filterLabel}>Category</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterRow}
+      >
+        {CATEGORIES.map((c) => (
+          <TouchableOpacity
+            key={c}
+            style={[
+              styles.filterChip,
+              category === c && styles.filterChipActive,
+            ]}
+            onPress={() => toggleFilter("category", c)}
+          >
+            <Text
+              style={[
+                styles.filterChipText,
+                category === c && styles.filterChipTextActive,
+              ]}
+            >
+              {c}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      <Text style={styles.filterLabel}>Affected Area</Text>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={styles.filterRow}
+      >
+        {AREAS.map((a) => (
+          <TouchableOpacity
+            key={a}
+            style={[styles.filterChip, area === a && styles.filterChipActive]}
+            onPress={() => toggleFilter("area", a)}
+          >
+            <Text
+              style={[
+                styles.filterChipText,
+                area === a && styles.filterChipTextActive,
+              ]}
+            >
+              {a}
+            </Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
       {loading ? (
-        <Text>Loading...</Text>
+        <Text style={{ marginTop: 20 }}>Loading...</Text>
       ) : (
         <FlatList
           data={diseases}
           keyExtractor={(item: any) => item._id}
+          style={{ marginTop: 12 }}
           renderItem={({ item }: any) => (
             <TouchableOpacity
               style={styles.card}
@@ -99,8 +161,27 @@ const styles = StyleSheet.create({
     borderColor: "#d1d5db",
     borderRadius: 8,
     padding: 12,
-    marginBottom: 16,
+    marginBottom: 12,
   },
+  filterLabel: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#4b5563",
+    marginBottom: 6,
+  },
+  filterRow: { marginBottom: 10 },
+  filterChip: {
+    backgroundColor: "white",
+    borderWidth: 1,
+    borderColor: "#d1d5db",
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+    marginRight: 8,
+  },
+  filterChipActive: { backgroundColor: "#15803d", borderColor: "#15803d" },
+  filterChipText: { fontSize: 13, color: "#374151" },
+  filterChipTextActive: { color: "white", fontWeight: "600" },
   card: {
     backgroundColor: "white",
     padding: 16,

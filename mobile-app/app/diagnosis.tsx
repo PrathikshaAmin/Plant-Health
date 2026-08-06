@@ -10,11 +10,13 @@ import {
 import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { API_URL } from "../config";
+import { useRouter } from "expo-router";
 
 const AREAS = ["Leaf", "Stem", "Root", "Fruit", "Whole Plant"];
 const SEVERITIES = ["Low", "Medium", "High"];
 
 export default function Diagnosis() {
+  const router = useRouter();
   const [step, setStep] = useState(1);
 
   const [affectedArea, setAffectedArea] = useState("");
@@ -26,6 +28,8 @@ export default function Diagnosis() {
   const [treatments, setTreatments] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  // const [historyId, setHistoryId] = useState<string | null>(null);
+  const [savedHistoryId, setSavedHistoryId] = useState<string | null>(null);
 
   // When area is selected, fetch matching symptoms for that area
   const fetchSymptomsForArea = async (area: string) => {
@@ -78,7 +82,7 @@ export default function Diagnosis() {
       // Save this diagnosis to history
       const userId = await SecureStore.getItemAsync("userId");
       if (userId) {
-        await axios.post(`${API_URL}/history`, {
+        const historyRes = await axios.post(`${API_URL}/history`, {
           user: userId,
           symptomsSelected: selectedSymptoms,
           affectedArea,
@@ -86,23 +90,38 @@ export default function Diagnosis() {
           suggestedDisease: response.data.disease._id,
           matchScore: response.data.matchScore,
         });
+        setSavedHistoryId(historyRes.data._id);
       }
-    } catch (err: any) {
+      // Save this diagnosis to history
+  //     const userId = await SecureStore.getItemAsync("userId");
+  //     if (userId) {
+  //       await axios.post(`${API_URL}/history`, {
+  //         user: userId,
+  //         symptomsSelected: selectedSymptoms,
+  //         affectedArea,
+  //         severity: sev,
+  //         suggestedDisease: response.data.disease._id,
+  //         matchScore: response.data.matchScore,
+  //       });
+  //     }
+    } 
+  catch (err: any) {
       setError(err.response?.data?.message || "No matching diagnosis found");
     } finally {
       setLoading(false);
     }
   };
 
-  const restart = () => {
-    setStep(1);
-    setAffectedArea("");
-    setSelectedSymptoms([]);
-    setSeverity("");
-    setResult(null);
-    setTreatments([]);
-    setError("");
-  };
+const restart = () => {
+  setStep(1);
+  setAffectedArea("");
+  setSelectedSymptoms([]);
+  setSeverity("");
+  setResult(null);
+  setTreatments([]);
+  setError("");
+  setSavedHistoryId(null);
+};
 
   return (
     <ScrollView
@@ -249,6 +268,18 @@ export default function Diagnosis() {
                   ))}
                 </>
               )}
+              {!loading && result && savedHistoryId && (
+                <TouchableOpacity
+                  style={styles.nextButton}
+                  onPress={() =>
+                    router.push(`/upload-image?diagnosisId=${savedHistoryId}`)
+                  }
+                >
+                  <Text style={styles.nextButtonText}>
+                    📷 Attach Photo to This Diagnosis
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
@@ -331,4 +362,16 @@ const styles = StyleSheet.create({
     borderTopColor: "#f3f4f6",
   },
   treatmentName: { fontSize: 14, fontWeight: "600", color: "#166534" },
+  attachButton: {
+    backgroundColor: "#15803d",
+    padding: 12,
+    borderRadius: 8,
+    marginTop: 16,
+  },
+  attachButtonText: {
+    color: "white",
+    textAlign: "center",
+    fontWeight: "600",
+    fontSize: 14,
+  },
 });

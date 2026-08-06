@@ -67,6 +67,18 @@ export default function Login() {
           Don't have an account? Register
         </Text>
       </TouchableOpacity>
+      <TouchableOpacity onPress={() => router.push("/forgot-password")}>
+        <Text
+          style={{
+            color: "#6b7280",
+            textAlign: "center",
+            marginTop: 12,
+            fontSize: 13,
+          }}
+        >
+          Forgot Password?
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
