@@ -8,31 +8,34 @@ import {
   Alert,
 } from "react-native";
 import axios from "axios";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
 import { API_URL } from "../config";
 
-export default function ForgotPassword() {
-  const [email, setEmail] = useState("");
+export default function ResetPassword() {
+  const { token: tokenFromLink } = useLocalSearchParams();
+  const [token, setToken] = useState((tokenFromLink as string) || "");
+  const [newPassword, setNewPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSubmit = async () => {
-    if (!email) {
-      Alert.alert("Missing Email", "Please enter your email address");
+  const handleReset = async () => {
+    if (!token || !newPassword) {
+      Alert.alert("Missing Fields", "Please fill in both fields");
       return;
     }
     setLoading(true);
     try {
-      const response = await axios.post(`${API_URL}/auth/forgot-password`, {
-        email,
+      await axios.post(`${API_URL}/auth/reset-password`, {
+        token,
+        newPassword,
       });
-      // Since no email service is set up, we pass the token forward directly
-      // to the next screen (this is a demo-only shortcut for a real email flow)
-      router.push(`/reset-password?token=${response.data.resetToken || ""}`);
+      Alert.alert("Success", "Password reset successfully. Please log in.", [
+        { text: "OK", onPress: () => router.replace("/login") },
+      ]);
     } catch (err: any) {
       Alert.alert(
         "Error",
-        err.response?.data?.message || "Something went wrong",
+        err.response?.data?.message || "Invalid or expired token",
       );
     } finally {
       setLoading(false);
@@ -41,32 +44,35 @@ export default function ForgotPassword() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Forgot Password</Text>
+      <Text style={styles.title}>Reset Password</Text>
       <Text style={styles.subtitle}>
-        Enter your email to reset your password
+        In a production app, this token would arrive via email. For this demo,
+        it's pre-filled from the previous step.
       </Text>
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Reset Token"
+        value={token}
+        onChangeText={setToken}
         autoCapitalize="none"
-        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        placeholder="New Password"
+        value={newPassword}
+        onChangeText={setNewPassword}
+        secureTextEntry
       />
 
       <TouchableOpacity
         style={styles.button}
-        onPress={handleSubmit}
+        onPress={handleReset}
         disabled={loading}
       >
         <Text style={styles.buttonText}>
-          {loading ? "Sending..." : "Send Reset Link"}
+          {loading ? "Resetting..." : "Reset Password"}
         </Text>
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={() => router.push("/login")}>
-        <Text style={styles.linkText}>Back to Login</Text>
       </TouchableOpacity>
     </View>
   );
@@ -87,8 +93,8 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   subtitle: {
-    fontSize: 14,
-    color: "#4b5563",
+    fontSize: 13,
+    color: "#6b7280",
     textAlign: "center",
     marginBottom: 24,
   },
@@ -106,11 +112,5 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontWeight: "600",
     fontSize: 16,
-  },
-  linkText: {
-    color: "#15803d",
-    textAlign: "center",
-    marginTop: 16,
-    fontSize: 14,
   },
 });
