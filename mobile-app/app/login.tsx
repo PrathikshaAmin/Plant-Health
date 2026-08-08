@@ -7,29 +7,36 @@ import {
   StyleSheet,
   Alert,
 } from "react-native";
-import axios from "axios";
 import { useRouter } from "expo-router";
-import { API_URL } from "../config";
 import * as SecureStore from "expo-secure-store";
+import api from "../utils/api";
+
+// A simple check to tell an email apart from a mobile number as the user types
+const isEmail = (value: string) => value.includes("@");
 
 export default function Login() {
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState(""); // email OR mobile number
   const [password, setPassword] = useState("");
   const router = useRouter();
 
   const handleLogin = async () => {
-  try {
-    const response = await axios.post(`${API_URL}/auth/login`, {
-      email,
-      password,
-    });
-    await SecureStore.setItemAsync('token', response.data.token);
-    await SecureStore.setItemAsync('userId', response.data._id);
-    router.replace('/(tabs)');
-  } catch (err: any) {
-    Alert.alert('Login Failed', err.response?.data?.message || 'Something went wrong');
-  }
-};
+    try {
+      const trimmed = identifier.trim();
+      const payload = isEmail(trimmed)
+        ? { email: trimmed, password }
+        : { mobileNumber: trimmed, password };
+
+      const response = await api.post("/auth/login", payload);
+      await SecureStore.setItemAsync("token", response.data.token);
+      await SecureStore.setItemAsync("userId", response.data._id);
+      router.replace("/(tabs)");
+    } catch (err: any) {
+      Alert.alert(
+        "Login Failed",
+        err.response?.data?.message || "Something went wrong",
+      );
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -38,11 +45,11 @@ export default function Login() {
 
       <TextInput
         style={styles.input}
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
+        placeholder="Email or Mobile Number"
+        value={identifier}
+        onChangeText={setIdentifier}
         autoCapitalize="none"
-        keyboardType="email-address"
+        keyboardType="default"
       />
       <TextInput
         style={styles.input}
