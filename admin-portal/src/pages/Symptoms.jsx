@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import Navbar from "../components/Navbar";
 
 function Symptoms() {
@@ -15,7 +15,7 @@ function Symptoms() {
 
   const fetchSymptoms = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/symptoms");
+      const response = await api.get("/symptoms");
       setSymptoms(response.data);
     } catch (err) {
       setError("Failed to load symptoms");
@@ -41,12 +41,9 @@ function Symptoms() {
 
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/symptoms/${editingId}`,
-          payload,
-        );
+        await api.put(`/symptoms/${editingId}`, payload);
       } else {
-        await axios.post("http://localhost:5000/api/symptoms", payload);
+        await api.post("/symptoms", payload);
       }
       resetForm();
       fetchSymptoms();
@@ -70,7 +67,7 @@ function Symptoms() {
     );
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:5000/api/symptoms/${id}`);
+      await api.delete(`/symptoms/${id}`);
       fetchSymptoms();
     } catch (err) {
       setError("Failed to delete symptom");

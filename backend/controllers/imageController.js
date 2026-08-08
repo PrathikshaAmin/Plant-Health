@@ -1,21 +1,18 @@
 const UploadedImage = require("../models/UploadedImage");
 
 // @desc    Upload an image
-// @route   POST /api/images/upload
+// @route   POST /api/images/upload  (protected)
 const uploadImage = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ message: "No image file provided" });
     }
 
-    const { userId, relatedDiagnosis } = req.body;
+    const { relatedDiagnosis } = req.body;
 
-    if (!userId) {
-      return res.status(400).json({ message: "userId is required" });
-    }
-
+    // The owner comes from the verified token, not the request body.
     const image = await UploadedImage.create({
-      user: userId,
+      user: req.user.id,
       imageUrl: `/uploads/${req.file.filename}`,
       originalFileName: req.file.originalname,
       fileSize: req.file.size,
@@ -29,9 +26,15 @@ const uploadImage = async (req, res) => {
 };
 
 // @desc    Get all images for a specific user
-// @route   GET /api/images/user/:userId
+// @route   GET /api/images/user/:userId  (protected)
 const getUserImages = async (req, res) => {
   try {
+    if (req.params.userId !== req.user.id) {
+      return res
+        .status(403)
+        .json({ message: "Not authorized to view these images" });
+    }
+
     const images = await UploadedImage.find({ user: req.params.userId });
     res.status(200).json(images);
   } catch (error) {

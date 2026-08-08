@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { View, Text, FlatList, StyleSheet } from "react-native";
-import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { useFocusEffect } from "expo-router";
-import { API_URL } from "../config";
+import api from "../utils/api";
 
 export default function History() {
   const [history, setHistory] = useState<any[]>([]);
@@ -13,7 +12,7 @@ export default function History() {
     try {
       const userId = await SecureStore.getItemAsync("userId");
       if (!userId) return;
-      const response = await axios.get(`${API_URL}/history/user/${userId}`);
+      const response = await api.get(`/history/user/${userId}`);
       setHistory(response.data);
     } catch (err) {
       console.log("Error fetching history:", err);

@@ -9,9 +9,7 @@ import {
   ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
-import * as SecureStore from "expo-secure-store";
-import axios from "axios";
-import { API_URL } from "../config";
+import api from "../utils/api";
 import { useRouter, useLocalSearchParams } from "expo-router";
 
 export default function UploadImage() {
@@ -46,7 +44,6 @@ export default function UploadImage() {
     setUploading(true);
 
     try {
-      const userId = await SecureStore.getItemAsync("userId");
       const fileName = imageUri.split("/").pop() || "photo.jpg";
       const fileType = fileName.split(".").pop();
 
@@ -56,9 +53,9 @@ export default function UploadImage() {
         name: fileName,
         type: `image/${fileType}`,
       } as any);
-      formData.append("userId", userId || "");
+      // userId is no longer sent — the server identifies the owner from the JWT
 
-      const response = await axios.post(`${API_URL}/images/upload`, formData, {
+      const response = await api.post("/images/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
@@ -127,14 +124,18 @@ export default function UploadImage() {
               setUploadedInfo(null);
             }}
           >
-            <Text style={[styles.buttonText, { color: "white" }]}>Upload Another</Text>
+            <Text style={[styles.buttonText, { color: "white" }]}>
+              Upload Another
+            </Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={styles.secondaryButton}
             onPress={() => router.push("/my-images")}
           >
-            <Text style={[styles.buttonText, { color: "white" }]}>View All My Images</Text>
+            <Text style={[styles.buttonText, { color: "white" }]}>
+              View All My Images
+            </Text>
           </TouchableOpacity>
         </View>
       )}

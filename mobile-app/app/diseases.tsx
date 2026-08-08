@@ -8,9 +8,8 @@ import {
   StyleSheet,
   ScrollView,
 } from "react-native";
-import axios from "axios";
 import { useRouter } from "expo-router";
-import { API_URL } from "../config";
+import api from "../utils/api";
 
 const CATEGORIES = ["Fungal", "Bacterial", "Viral", "Pest"];
 const AREAS = ["Leaf", "Stem", "Root", "Fruit", "Whole Plant"];
@@ -30,9 +29,7 @@ export default function Diseases() {
       if (category) params.append("category", category);
       if (area) params.append("affectedArea", area);
 
-      const response = await axios.get(
-        `${API_URL}/diseases?${params.toString()}`,
-      );
+      const response = await api.get(`/diseases?${params.toString()}`);
       setDiseases(response.data);
     } catch (err) {
       console.log("Error fetching diseases:", err);

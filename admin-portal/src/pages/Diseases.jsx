@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import Navbar from "../components/Navbar";
 
 function Diseases() {
@@ -16,7 +16,7 @@ function Diseases() {
 
   const fetchDiseases = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/diseases");
+      const response = await api.get("/diseases");
       setDiseases(response.data);
     } catch (err) {
       setError("Failed to load diseases");
@@ -48,12 +48,9 @@ function Diseases() {
 
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/diseases/${editingId}`,
-          payload,
-        );
+        await api.put(`/diseases/${editingId}`, payload);
       } else {
-        await axios.post("http://localhost:5000/api/diseases", payload);
+        await api.post("/diseases", payload);
       }
       resetForm();
       fetchDiseases();
@@ -78,7 +75,7 @@ function Diseases() {
     );
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:5000/api/diseases/${id}`);
+      await api.delete(`/diseases/${id}`);
       fetchDiseases();
     } catch (err) {
       setError("Failed to delete disease");

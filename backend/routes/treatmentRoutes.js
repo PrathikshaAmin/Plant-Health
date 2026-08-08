@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { protect, requireAdmin } = require("../middleware/authMiddleware");
 const {
   createTreatment,
   getTreatments,
@@ -8,10 +9,11 @@ const {
   deleteTreatment,
 } = require("../controllers/treatmentController");
 
-router.post("/", createTreatment);
 router.get("/", getTreatments);
 router.get("/:id", getTreatmentById);
-router.put("/:id", updateTreatment);
-router.delete("/:id", deleteTreatment);
+
+router.post("/", protect, requireAdmin, createTreatment);
+router.put("/:id", protect, requireAdmin, updateTreatment);
+router.delete("/:id", protect, requireAdmin, deleteTreatment);
 
 module.exports = router;

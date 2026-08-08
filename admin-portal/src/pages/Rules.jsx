@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import Navbar from "../components/Navbar";
 
 function Rules() {
@@ -19,9 +19,7 @@ function Rules() {
 
   const fetchRules = async () => {
     try {
-      const response = await axios.get(
-        "http://localhost:5000/api/diagnosis-rules",
-      );
+      const response = await api.get("/diagnosis-rules");
       setRules(response.data);
     } catch (err) {
       setError("Failed to load rules");
@@ -33,8 +31,8 @@ function Rules() {
   const fetchDropdownData = async () => {
     try {
       const [symptomsRes, diseasesRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/symptoms"),
-        axios.get("http://localhost:5000/api/diseases"),
+        api.get("/symptoms"),
+        api.get("/diseases"),
       ]);
       setSymptoms(symptomsRes.data);
       setDiseases(diseasesRes.data);
@@ -82,12 +80,9 @@ function Rules() {
 
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/diagnosis-rules/${editingId}`,
-          payload,
-        );
+        await api.put(`/diagnosis-rules/${editingId}`, payload);
       } else {
-        await axios.post("http://localhost:5000/api/diagnosis-rules", payload);
+        await api.post("/diagnosis-rules", payload);
       }
       resetForm();
       fetchRules();
@@ -111,7 +106,7 @@ function Rules() {
     );
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:5000/api/diagnosis-rules/${id}`);
+      await api.delete(`/diagnosis-rules/${id}`);
       fetchRules();
     } catch (err) {
       setError("Failed to delete rule");

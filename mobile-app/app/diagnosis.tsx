@@ -7,9 +7,7 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import axios from "axios";
-import * as SecureStore from "expo-secure-store";
-import { API_URL } from "../config";
+import api from "../utils/api";
 import { useRouter } from "expo-router";
 
 const AREAS = ["Leaf", "Stem", "Root", "Fruit", "Whole Plant"];
@@ -34,9 +32,7 @@ export default function Diagnosis() {
   // When area is selected, fetch matching symptoms for that area
   const fetchSymptomsForArea = async (area: string) => {
     try {
-      const response = await axios.get(
-        `${API_URL}/symptoms?affectedArea=${area}`,
-      );
+      const response = await api.get(`/symptoms?affectedArea=${area}`);
       setAvailableSymptoms(response.data);
     } catch (err) {
       console.log("Error fetching symptoms:", err);
@@ -66,7 +62,7 @@ export default function Diagnosis() {
     setError("");
     setStep(4);
     try {
-      const response = await axios.post(`${API_URL}/diagnosis/match`, {
+      const response = await api.post("/diagnosis/match", {
         affectedArea,
         symptoms: selectedSymptoms,
         severity: sev,
@@ -74,54 +70,37 @@ export default function Diagnosis() {
       setResult(response.data);
 
       // Fetch treatments for the matched disease
-      const treatmentsRes = await axios.get(
-        `${API_URL}/treatments?disease=${response.data.disease._id}`,
+      const treatmentsRes = await api.get(
+        `/treatments?disease=${response.data.disease._id}`,
       );
       setTreatments(treatmentsRes.data);
 
-      // Save this diagnosis to history
-      const userId = await SecureStore.getItemAsync("userId");
-      if (userId) {
-        const historyRes = await axios.post(`${API_URL}/history`, {
-          user: userId,
-          symptomsSelected: selectedSymptoms,
-          affectedArea,
-          severity: sev,
-          suggestedDisease: response.data.disease._id,
-          matchScore: response.data.matchScore,
-        });
-        setSavedHistoryId(historyRes.data._id);
-      }
-      // Save this diagnosis to history
-  //     const userId = await SecureStore.getItemAsync("userId");
-  //     if (userId) {
-  //       await axios.post(`${API_URL}/history`, {
-  //         user: userId,
-  //         symptomsSelected: selectedSymptoms,
-  //         affectedArea,
-  //         severity: sev,
-  //         suggestedDisease: response.data.disease._id,
-  //         matchScore: response.data.matchScore,
-  //       });
-  //     }
-    } 
-  catch (err: any) {
+      // Save this diagnosis to history — the owner is derived from the JWT server-side
+      const historyRes = await api.post("/history", {
+        symptomsSelected: selectedSymptoms,
+        affectedArea,
+        severity: sev,
+        suggestedDisease: response.data.disease._id,
+        matchScore: response.data.matchScore,
+      });
+      setSavedHistoryId(historyRes.data._id);
+    } catch (err: any) {
       setError(err.response?.data?.message || "No matching diagnosis found");
     } finally {
       setLoading(false);
     }
   };
 
-const restart = () => {
-  setStep(1);
-  setAffectedArea("");
-  setSelectedSymptoms([]);
-  setSeverity("");
-  setResult(null);
-  setTreatments([]);
-  setError("");
-  setSavedHistoryId(null);
-};
+  const restart = () => {
+    setStep(1);
+    setAffectedArea("");
+    setSelectedSymptoms([]);
+    setSeverity("");
+    setResult(null);
+    setTreatments([]);
+    setError("");
+    setSavedHistoryId(null);
+  };
 
   return (
     <ScrollView

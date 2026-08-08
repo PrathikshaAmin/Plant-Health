@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
@@ -17,10 +17,10 @@ function Dashboard() {
       try {
         const [diseasesRes, symptomsRes, treatmentsRes, rulesRes] =
           await Promise.all([
-            axios.get("http://localhost:5000/api/diseases"),
-            axios.get("http://localhost:5000/api/symptoms"),
-            axios.get("http://localhost:5000/api/treatments"),
-            axios.get("http://localhost:5000/api/diagnosis-rules"),
+            api.get("/diseases"),
+            api.get("/symptoms"),
+            api.get("/treatments"),
+            api.get("/diagnosis-rules"),
           ]);
         setCounts({
           diseases: diseasesRes.data.length,

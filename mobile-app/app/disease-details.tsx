@@ -6,9 +6,8 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import axios from "axios";
 import { useLocalSearchParams } from "expo-router";
-import { API_URL } from "../config";
+import api from "../utils/api";
 
 export default function DiseaseDetails() {
   const { id } = useLocalSearchParams();
@@ -18,7 +17,7 @@ export default function DiseaseDetails() {
   useEffect(() => {
     const fetchDisease = async () => {
       try {
-        const response = await axios.get(`${API_URL}/diseases/${id}`);
+        const response = await api.get(`/diseases/${id}`);
         setDisease(response.data);
       } catch (err) {
         console.log("Error fetching disease details:", err);

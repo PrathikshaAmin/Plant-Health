@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { protect, requireAdmin } = require("../middleware/authMiddleware");
 const {
   createDisease,
   getDiseases,
@@ -8,19 +9,16 @@ const {
   deleteDisease,
 } = require("../controllers/diseaseController");
 
-// POST /api/diseases
-router.post("/", createDisease);
-
+// GET routes stay public so the mobile app's disease library works pre-login browsing
 // GET /api/diseases  (supports ?search=&category=&affectedArea=)
 router.get("/", getDiseases);
 
 // GET /api/diseases/:id
 router.get("/:id", getDiseaseById);
 
-// PUT /api/diseases/:id
-router.put("/:id", updateDisease);
-
-// DELETE /api/diseases/:id
-router.delete("/:id", deleteDisease);
+// Writes require the one admin account, not just any logged-in user
+router.post("/", protect, requireAdmin, createDisease);
+router.put("/:id", protect, requireAdmin, updateDisease);
+router.delete("/:id", protect, requireAdmin, deleteDisease);
 
 module.exports = router;

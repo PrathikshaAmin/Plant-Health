@@ -7,9 +7,9 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import axios from "axios";
 import * as SecureStore from "expo-secure-store";
 import { API_URL } from "../config";
+import api from "../utils/api";
 
 export default function MyImages() {
   const [images, setImages] = useState<any[]>([]);
@@ -19,7 +19,7 @@ export default function MyImages() {
     const fetchImages = async () => {
       try {
         const userId = await SecureStore.getItemAsync("userId");
-        const response = await axios.get(`${API_URL}/images/user/${userId}`);
+        const response = await api.get(`/images/user/${userId}`);
         setImages(response.data);
       } catch (err) {
         console.log("Error fetching images:", err);

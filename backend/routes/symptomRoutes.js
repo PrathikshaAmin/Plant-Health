@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const { protect, requireAdmin } = require("../middleware/authMiddleware");
 const {
   createSymptom,
   getSymptoms,
@@ -8,10 +9,11 @@ const {
   deleteSymptom,
 } = require("../controllers/symptomController");
 
-router.post("/", createSymptom);
 router.get("/", getSymptoms);
 router.get("/:id", getSymptomById);
-router.put("/:id", updateSymptom);
-router.delete("/:id", deleteSymptom);
+
+router.post("/", protect, requireAdmin, createSymptom);
+router.put("/:id", protect, requireAdmin, updateSymptom);
+router.delete("/:id", protect, requireAdmin, deleteSymptom);
 
 module.exports = router;
