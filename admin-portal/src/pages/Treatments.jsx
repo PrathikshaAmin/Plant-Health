@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import api from "../api";
 import Navbar from "../components/Navbar";
 
 function Treatments() {
@@ -13,13 +13,15 @@ function Treatments() {
   const [description, setDescription] = useState("");
   const [dosage, setDosage] = useState("");
   const [applicationMethod, setApplicationMethod] = useState("");
+  const [immediateActions, setImmediateActions] = useState("");
+  const [additionalNotes, setAdditionalNotes] = useState("");
   const [disease, setDisease] = useState("");
 
   const [editingId, setEditingId] = useState(null);
 
   const fetchTreatments = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/treatments");
+      const response = await api.get("/treatments");
       setTreatments(response.data);
     } catch (err) {
       setError("Failed to load treatments");
@@ -30,7 +32,7 @@ function Treatments() {
 
   const fetchDiseases = async () => {
     try {
-      const response = await axios.get("http://localhost:5000/api/diseases");
+      const response = await api.get("/diseases");
       setDiseases(response.data);
       if (response.data.length > 0) setDisease(response.data[0]._id);
     } catch (err) {
@@ -49,6 +51,8 @@ function Treatments() {
     setDescription("");
     setDosage("");
     setApplicationMethod("");
+    setImmediateActions("");
+    setAdditionalNotes("");
     setDisease(diseases[0]?._id || "");
     setEditingId(null);
   };
@@ -61,17 +65,19 @@ function Treatments() {
       description,
       dosage,
       applicationMethod,
+      immediateActions,
+      additionalNotes,
       disease,
     };
 
     try {
       if (editingId) {
-        await axios.put(
-          `http://localhost:5000/api/treatments/${editingId}`,
+        await api.put(
+          `/treatments/${editingId}`,
           payload,
         );
       } else {
-        await axios.post("http://localhost:5000/api/treatments", payload);
+        await api.post("/treatments", payload);
       }
       resetForm();
       fetchTreatments();
@@ -89,6 +95,8 @@ function Treatments() {
     setDescription(treatment.description || "");
     setDosage(treatment.dosage || "");
     setApplicationMethod(treatment.applicationMethod || "");
+    setImmediateActions(treatment.immediateActions || "");
+    setAdditionalNotes(treatment.additionalNotes || "");
     setDisease(treatment.disease?._id || treatment.disease);
   };
 
@@ -98,7 +106,7 @@ function Treatments() {
     );
     if (!confirmed) return;
     try {
-      await axios.delete(`http://localhost:5000/api/treatments/${id}`);
+      await api.delete(`/treatments/${id}`);
       fetchTreatments();
     } catch (err) {
       setError("Failed to delete treatment");
@@ -181,6 +189,20 @@ function Treatments() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               className={inputStyle}
+            />
+            <textarea
+              placeholder="Immediate Actions (e.g. isolate plant, remove infected leaves)"
+              value={immediateActions}
+              onChange={(e) => setImmediateActions(e.target.value)}
+              className={`${inputStyle} md:col-span-2`}
+              rows={2}
+            />
+            <textarea
+              placeholder="Additional Notes"
+              value={additionalNotes}
+              onChange={(e) => setAdditionalNotes(e.target.value)}
+              className={`${inputStyle} md:col-span-2`}
+              rows={2}
             />
             <div className="md:col-span-2 flex gap-2">
               <button
