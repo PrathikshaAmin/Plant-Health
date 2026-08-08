@@ -1,0 +1,6 @@
+# Catch-all — each app also has its own .gitignore (backend/, mobile-app/, admin-portal/)
+node_modules/
+.env
+.env.local
+.DS_Store
+*.log
