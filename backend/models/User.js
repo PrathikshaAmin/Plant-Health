@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema(
     resetPasswordExpires: {
       type: Date,
     },
+    isAdmin: {
+      type: Boolean,
+      default: false, // only accounts explicitly promoted (see createAdmin.js) can use the admin portal
+    },
   },
   {
     timestamps: true,
